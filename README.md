@@ -12,6 +12,9 @@ The app estimates adjustment-rate distributions, expected price ranges, minimum 
 
 The batch file automatically installs Python packages from `requirements.txt` if Streamlit is missing, restarts the local app server, and opens the browser.
 
+If Python is not installed, the batch file first tries to install Python 3.11 with Windows `winget`.
+If that fails, it opens the official Python download page. After installing Python manually, double-click `입찰AI_실행.bat` again.
+
 ## Main Features
 
 - CSV upload for historical bid data

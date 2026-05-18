@@ -11,12 +11,66 @@ if not exist ".streamlit\config.toml" (
     echo gatherUsageStats = false >> ".streamlit\config.toml"
 )
 
-python -m streamlit --version >nul 2>&1
+set "PYTHON_CMD="
+
+py -3 --version >nul 2>&1
+if not errorlevel 1 (
+    set "PYTHON_CMD=py -3"
+)
+
+if "%PYTHON_CMD%"=="" (
+    python --version >nul 2>&1
+    if not errorlevel 1 (
+        set "PYTHON_CMD=python"
+    )
+)
+
+if "%PYTHON_CMD%"=="" (
+    echo Python was not found.
+    echo Trying to install Python 3.11 with winget...
+    winget --version >nul 2>&1
+    if errorlevel 1 (
+        echo.
+        echo winget is not available on this PC.
+        echo Please install Python 3.11 or newer, then run this file again.
+        echo Download: https://www.python.org/downloads/windows/
+        start "" "https://www.python.org/downloads/windows/"
+        pause
+        exit /b 1
+    )
+    winget install -e --id Python.Python.3.11 --scope user --accept-package-agreements --accept-source-agreements
+    if errorlevel 1 (
+        echo.
+        echo Python installation failed.
+        echo Please install Python manually, then run this file again.
+        echo Download: https://www.python.org/downloads/windows/
+        start "" "https://www.python.org/downloads/windows/"
+        pause
+        exit /b 1
+    )
+    py -3 --version >nul 2>&1
+    if not errorlevel 1 (
+        set "PYTHON_CMD=py -3"
+    )
+)
+
+if "%PYTHON_CMD%"=="" (
+    echo.
+    echo Python was installed, but this terminal cannot find it yet.
+    echo Close this window and double-click this file again.
+    pause
+    exit /b 1
+)
+
+%PYTHON_CMD% -m ensurepip --upgrade >nul 2>&1
+%PYTHON_CMD% -m streamlit --version >nul 2>&1
 if errorlevel 1 (
     echo Installing required Python packages...
-    python -m pip install -r requirements.txt
+    %PYTHON_CMD% -m pip install --upgrade pip
+    %PYTHON_CMD% -m pip install -r requirements.txt
     if errorlevel 1 (
         echo Package installation failed.
+        echo Please check the internet connection, then run this file again.
         pause
         exit /b 1
     )
@@ -25,7 +79,7 @@ if errorlevel 1 (
 echo Restarting local app server...
 powershell -NoProfile -Command "$ports=@(8502); foreach($p in $ports){ $lines=netstat -ano | Select-String (':' + $p); foreach($line in $lines){ $parts=($line.ToString() -split '\s+') | Where-Object { $_ }; if($parts.Count -ge 5){ $pid=[int]$parts[-1]; Stop-Process -Id $pid -Force -ErrorAction SilentlyContinue } } }"
 ping 127.0.0.1 -n 2 >nul
-start "Bid AI Streamlit Server" cmd /k "cd /d ""%~dp0"" && python -m streamlit run app.py --server.port 8502 --server.headless true --browser.gatherUsageStats false"
+start "Bid AI Streamlit Server" cmd /k "cd /d ""%~dp0"" && %PYTHON_CMD% -m streamlit run app.py --server.port 8502 --server.headless true --browser.gatherUsageStats false"
 ping 127.0.0.1 -n 5 >nul
 
 start "" "http://localhost:8502"
