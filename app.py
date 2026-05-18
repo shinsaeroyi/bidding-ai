@@ -43,6 +43,12 @@ def get_sample_data() -> pd.DataFrame:
 if "bid_data" not in st.session_state:
     st.session_state.bid_data = get_sample_data()
     st.session_state.data_source_label = "sample"
+else:
+    try:
+        st.session_state.bid_data = prepare_data(st.session_state.bid_data)
+    except Exception:
+        st.session_state.bid_data = get_sample_data()
+        st.session_state.data_source_label = "sample"
 if "simulation_seed" not in st.session_state:
     st.session_state.simulation_seed = int(time.time())
 if "competitive_seed" not in st.session_state:
