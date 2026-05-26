@@ -8,6 +8,7 @@ from utils import missing_required_columns, normalize_columns, normalize_rate
 
 
 CSV_ENCODINGS = ["utf-8-sig", "utf-8", "cp949", "euc-kr"]
+PRIVATE_DATA_NAME = "\ud638\uc218\uc704\ubc14\uc704"
 
 
 def read_csv_flex(path_or_file) -> pd.DataFrame:
@@ -21,10 +22,6 @@ def read_csv_flex(path_or_file) -> pd.DataFrame:
     if last_error:
         raise last_error
     return pd.read_csv(path_or_file)
-
-
-def load_csv(uploaded_file) -> pd.DataFrame:
-    return prepare_data(read_csv_flex(uploaded_file))
 
 
 def load_excel(path: str | Path) -> pd.DataFrame:
@@ -49,17 +46,21 @@ def load_excel(path: str | Path) -> pd.DataFrame:
             raw["source_file"] = path.name
             frames.append(raw)
     if not frames:
-        raise ValueError(f"{path.name}에서 사용할 수 있는 입찰 데이터 행을 찾지 못했습니다.")
+        raise ValueError(f"No usable bid rows found in {path.name}.")
     return prepare_data(pd.concat(frames, ignore_index=True))
 
 
 def find_private_data_files(base_dir: str | Path = ".") -> list[Path]:
     base_dir = Path(base_dir)
     candidates: list[Path] = []
-    for pattern in ["호수위바위*.xlsx", "호수위바위*.xls", "호수위바위*.csv"]:
+    for pattern in [
+        f"{PRIVATE_DATA_NAME}*.xlsx",
+        f"{PRIVATE_DATA_NAME}*.xls",
+        f"{PRIVATE_DATA_NAME}*.csv",
+    ]:
         candidates.extend(base_dir.glob(pattern))
 
-    data_dir = base_dir / "호수위바위"
+    data_dir = base_dir / PRIVATE_DATA_NAME
     if data_dir.exists():
         for pattern in ["*.xlsx", "*.xls", "*.csv"]:
             candidates.extend(data_dir.glob(pattern))
@@ -71,7 +72,8 @@ def load_local_bid_data(base_dir: str | Path = ".") -> pd.DataFrame:
     candidates = find_private_data_files(base_dir)
     if not candidates:
         raise FileNotFoundError(
-            "과거 데이터 파일을 찾지 못했습니다. 앱 폴더에 호수위바위.csv 또는 호수위바위.xlsx를 넣어주세요."
+            "No private bid data file found. Put hosuwibawi CSV/XLSX in the app folder: "
+            "호수위바위.csv or 호수위바위.xlsx."
         )
 
     frames: list[pd.DataFrame] = []
@@ -90,7 +92,7 @@ def load_local_bid_data(base_dir: str | Path = ".") -> pd.DataFrame:
     if frames:
         return prepare_data(pd.concat(frames, ignore_index=True))
 
-    raise ValueError("과거 데이터 파일을 읽지 못했습니다.\n" + "\n".join(errors))
+    raise ValueError("Private bid data files were found but could not be read:\n" + "\n".join(errors))
 
 
 def prepare_data(df: pd.DataFrame) -> pd.DataFrame:
@@ -109,7 +111,7 @@ def prepare_data(df: pd.DataFrame) -> pd.DataFrame:
 
     missing = missing_required_columns(df.columns)
     if missing:
-        raise ValueError(f"필수 컬럼이 없습니다: {', '.join(missing)}")
+        raise ValueError(f"Missing required columns: {', '.join(missing)}")
 
     numeric_columns = [
         "base_price",

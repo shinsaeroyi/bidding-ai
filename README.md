@@ -47,4 +47,4 @@ The single-run simulator follows this process:
 
 This is a decision-support simulator. It does not predict or guarantee a winning bid.
 
-The included `sample_data.csv` is a small public-web sample and should be verified against original notices before practical use.
+No sample bid data is included. The app requires a local private historical-data file such as `호수위바위.csv` or `호수위바위.xlsx`.
