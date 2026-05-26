@@ -13,16 +13,19 @@ QUANTILE_LABELS = ["P10", "P25", "P50", "P75", "P90"]
 KOREAN_COLUMN_ALIASES = {
     "공고번호": "notice_id",
     "공고명": "title",
+    "사업명": "title",
     "발주기관": "agency",
     "지역": "region",
     "용역구분": "service_type",
     "기초금액": "base_price",
     "예정가격": "expected_price",
+    "예가/기초": "expected_to_base_ratio",
     "낙찰하한율": "lower_rate",
     "낙찰하한가": "minimum_bid_price",
     "낙찰금액": "winning_price",
     "투찰률": "bid_rate",
     "입찰참가자 수": "participant_count",
+    "세대수": "household_count",
     "개찰일": "opening_date",
     "복수예비가격 범위": "preliminary_range",
     "사정률": "adjustment_rate",
@@ -30,16 +33,13 @@ KOREAN_COLUMN_ALIASES = {
     "1순위 여부": "is_first_rank",
     "데이터출처": "source_url",
     "검수상태": "review_status",
-    "사업명": "title",
-    "예가/기초": "expected_to_base_ratio",
-    "세대수": "household_count",
 }
 
 
 def format_won(value: float | int | None) -> str:
     if value is None or not math.isfinite(float(value)):
         return "-"
-    return f"{int(round(float(value))):,} KRW"
+    return f"{int(round(float(value))):,}원"
 
 
 def format_rate(value: float | int | None, digits: int = 3) -> str:
@@ -54,7 +54,7 @@ def normalize_rate(rate: float) -> float:
 
 
 def normalize_columns(columns: Iterable[str]) -> dict[str, str]:
-    return {col: KOREAN_COLUMN_ALIASES.get(col, col) for col in columns}
+    return {col: KOREAN_COLUMN_ALIASES.get(str(col).strip(), str(col).strip()) for col in columns}
 
 
 def missing_required_columns(columns: Iterable[str]) -> list[str]:
@@ -64,10 +64,10 @@ def missing_required_columns(columns: Iterable[str]) -> list[str]:
 
 def confidence_label(sample_size: int, iqr_width: float) -> tuple[str, str]:
     if sample_size < 20:
-        return "High", "Similar-case sample is small, so results are volatile."
+        return "높음", "유사 데이터가 적어 결과 변동성이 큽니다."
     if sample_size < 50 or iqr_width >= 1.0:
-        return "Medium", "There is usable history, but conservative interpretation is needed."
-    return "Low", "Similar-case sample is relatively stable."
+        return "보통", "참고 가능한 표본은 있으나 보수적 해석이 필요합니다."
+    return "낮음", "유사 데이터가 충분하고 분포 폭이 비교적 안정적입니다."
 
 
 def strategy_prices(base_price: float, lower_rate: float, q: dict[str, float]) -> dict[str, float]:
