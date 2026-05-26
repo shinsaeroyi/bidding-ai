@@ -8,7 +8,7 @@ from utils import missing_required_columns, normalize_columns, normalize_rate
 
 
 CSV_ENCODINGS = ["utf-8-sig", "utf-8", "cp949", "euc-kr"]
-PRIVATE_DATA_NAME = "\ud638\uc218\uc704\ubc14\uc704"
+PRIVATE_DATA_NAMES = ["liverintheriver", "\ud638\uc218\uc704\ubc14\uc704"]
 
 
 def read_csv_flex(path_or_file) -> pd.DataFrame:
@@ -53,17 +53,18 @@ def load_excel(path: str | Path) -> pd.DataFrame:
 def find_private_data_files(base_dir: str | Path = ".") -> list[Path]:
     base_dir = Path(base_dir)
     candidates: list[Path] = []
-    for pattern in [
-        f"{PRIVATE_DATA_NAME}*.xlsx",
-        f"{PRIVATE_DATA_NAME}*.xls",
-        f"{PRIVATE_DATA_NAME}*.csv",
-    ]:
-        candidates.extend(base_dir.glob(pattern))
+    for data_name in PRIVATE_DATA_NAMES:
+        for pattern in [
+            f"{data_name}*.xlsx",
+            f"{data_name}*.xls",
+            f"{data_name}*.csv",
+        ]:
+            candidates.extend(base_dir.glob(pattern))
 
-    data_dir = base_dir / PRIVATE_DATA_NAME
-    if data_dir.exists():
-        for pattern in ["*.xlsx", "*.xls", "*.csv"]:
-            candidates.extend(data_dir.glob(pattern))
+        data_dir = base_dir / data_name
+        if data_dir.exists():
+            for pattern in ["*.xlsx", "*.xls", "*.csv"]:
+                candidates.extend(data_dir.glob(pattern))
 
     return sorted({path for path in candidates if path.is_file()})
 
@@ -72,8 +73,7 @@ def load_local_bid_data(base_dir: str | Path = ".") -> pd.DataFrame:
     candidates = find_private_data_files(base_dir)
     if not candidates:
         raise FileNotFoundError(
-            "No private bid data file found. Put hosuwibawi CSV/XLSX in the app folder: "
-            "호수위바위.csv or 호수위바위.xlsx."
+            "No private bid data file found. Put liverintheriver.xlsx or liverintheriver.csv in the app folder."
         )
 
     frames: list[pd.DataFrame] = []

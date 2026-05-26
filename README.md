@@ -8,7 +8,8 @@ The app estimates adjustment-rate distributions, expected price ranges, minimum 
 
 1. Download or clone this repository.
 2. Put your private historical bid file in the downloaded folder.
-   - Supported names: `호수위바위.csv`, `호수위바위.xlsx`, or `호수위바위` folder containing `.csv` / `.xlsx` files.
+   - Recommended names: `liverintheriver.csv` or `liverintheriver.xlsx`.
+   - You can also use a `liverintheriver` folder containing `.csv` / `.xlsx` files.
    - These private files are intentionally ignored by Git and are not uploaded to GitHub.
 3. Double-click `입찰AI_실행.bat`.
 4. The app opens at `http://localhost:8502`.
@@ -23,7 +24,7 @@ If that fails, it opens the official Python download page. After installing Pyth
 - Automatically loads local historical bid files
 - Required columns: `notice_id`, `title`, `base_price`, `expected_price`, `lower_rate`
 - Korean column names such as `공고번호`, `공고명`, `기초금액`, `예정가격`, `낙찰하한율` are also accepted
-- The current `호수위바위.xlsx` style is also accepted: `사업명`, `발주기관`, `개찰일`, `기초금액`, `세대수`, `예가/기초`
+- The current private Excel format is also accepted: `사업명`, `발주기관`, `개찰일`, `기초금액`, `세대수`, `예가/기초`
 - Adjustment-rate quantiles: P10, P25, P50, P75, P90
 - Expected price and minimum eligible bid range
 - Participant-count-based competitive bidding simulation
@@ -47,4 +48,4 @@ The single-run simulator follows this process:
 
 This is a decision-support simulator. It does not predict or guarantee a winning bid.
 
-No sample bid data is included. The app requires a local private historical-data file such as `호수위바위.csv` or `호수위바위.xlsx`.
+No sample bid data is included. The app requires a local private historical-data file such as `liverintheriver.csv` or `liverintheriver.xlsx`.
