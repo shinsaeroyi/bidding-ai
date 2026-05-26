@@ -7,3 +7,7 @@ env/
 .env
 *.log
 .DS_Store
+호수위바위*.csv
+호수위바위*.xlsx
+호수위바위*.xls
+호수위바위/

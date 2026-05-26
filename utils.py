@@ -30,6 +30,9 @@ KOREAN_COLUMN_ALIASES = {
     "1순위 여부": "is_first_rank",
     "데이터출처": "source_url",
     "검수상태": "review_status",
+    "사업명": "title",
+    "예가/기초": "expected_to_base_ratio",
+    "세대수": "household_count",
 }
 
 
